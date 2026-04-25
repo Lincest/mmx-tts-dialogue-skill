@@ -1,0 +1,23 @@
+{
+  "skill_name": "mmx-tts-dialogue",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "用 MiniMax TTS 生成一段对话：\nA: 今天天气真好\nB: 是啊，适合出门散步\n\n默认使用率真弟弟和憨憨萌兽音色",
+      "expected_output": "生成 dialogue_output.mp3 和 dialogue_output.srt，调用了 MiniMax API",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "之前生成过一段对话，现在想调整速度：A 用 1.2x，B 用 0.8x",
+      "expected_output": "复用之前的缓存，不消耗 API，生成调整速度后的音频和字幕",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "列出所有可用的音色",
+      "expected_output": "显示 mmx speech voices 的完整输出",
+      "files": []
+    }
+  ]
+}
