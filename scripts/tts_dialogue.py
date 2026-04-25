@@ -20,8 +20,8 @@ MiniMax TTS 对话生成器
     --input, -i          输入文件路径 (对话内容)
     --speed-a, -sa       A 角色语速 (默认 1.0)
     --speed-b, -sb       B 角色语速 (默认 1.0)
-    --voice-a, -va       A 角色音色 (默认 Chinese (Mandarin)_Straightforward_Boy)
-    --voice-b, -vb       B 角色音色 (默认 Chinese (Mandarin)_Cute_Spirit)
+    --voice-a, -va       A 角色音色 (默认 Chinese (Mandarin)_Cute_Spirit)
+    --voice-b, -vb       B 角色音色 (默认 Chinese (Mandarin)_Gentleman)
     --model, -m          模型 (默认 speech-2.8-hd)
     --output, -o         输出文件名 (默认 dialogue_output)
     --cache-dir          缓存目录 (默认 .tts_cache)
@@ -51,8 +51,8 @@ from datetime import datetime
 
 # 默认配置
 DEFAULT_CONFIG = {
-    "voice_a": "Chinese (Mandarin)_Straightforward_Boy",
-    "voice_b": "Chinese (Mandarin)_Cute_Spirit",
+    "voice_a": "Chinese (Mandarin)_Cute_Spirit",
+    "voice_b": "Chinese (Mandarin)_Gentleman",
     "model": "speech-2.8-hd",
     "speed_a": 1.0,
     "speed_b": 1.0,

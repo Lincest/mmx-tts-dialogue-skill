@@ -1,0 +1,14 @@
+# 缓存
+.tts_cache/
+
+# 输出文件
+*.mp3
+*.srt
+dialogue_*.txt
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

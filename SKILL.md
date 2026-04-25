@@ -64,8 +64,8 @@ python tts_dialogue.py --input dialogue.txt -sa 1.2 -sb 0.9
 | `--input`, `-i` | 输入对话文件路径 | 必须 |
 | `--speed-a`, `-sa` | A 角色语速 | `1.0` |
 | `--speed-b`, `-sb` | B 角色语速 | `1.0` |
-| `--voice-a`, `-va` | A 角色音色 ID | `Chinese (Mandarin)_Straightforward_Boy` |
-| `--voice-b`, `-vb` | B 角色音色 ID | `Chinese (Mandarin)_Cute_Spirit` |
+| `--voice-a`, `-va` | A 角色音色 ID | `Chinese (Mandarin)_Cute_Spirit` (憨憨萌兽) |
+| `--voice-b`, `-vb` | B 角色音色 ID | `Chinese (Mandarin)_Gentleman` (温润男声) |
 | `--model`, `-m` | TTS 模型 | `speech-2.8-hd` |
 | `--output`, `-o` | 输出文件名 (不含扩展名) | `dialogue_output` |
 | `--force`, `-f` | 强制重新生成，忽略缓存 | `False` |
@@ -77,14 +77,16 @@ python tts_dialogue.py --input dialogue.txt -sa 1.2 -sb 0.9
 
 | 角色 | 音色 ID | 名称 |
 |------|---------|------|
+| 女 A (默认) | `Chinese (Mandarin)_Cute_Spirit` | 憨憨萌兽 |
+| 男 B (默认) | `Chinese (Mandarin)_Gentleman` | 温润男声 |
 | 男 A | `Chinese (Mandarin)_Straightforward_Boy` | 率真弟弟 |
-| 男 A | `Chinese (Mandarin)_Gentleman` | 温润男声 |
 | 男 A | `male-qn-qingse` | 青涩青年 |
 | 男 A | `male-qn-badao` | 霸道青年 |
-| 女 B | `Chinese (Mandarin)_Cute_Spirit` | 憨憨萌兽 |
 | 女 B | `Chinese (Mandarin)_Crisp_Girl` | 清脆少女 |
 | 女 B | `Chinese (Mandarin)_Warm_Bestie` | 温暖闺蜜 |
 | 女 B | `female-shaonv` | 少女 |
+
+> **默认角色分配：** A = 憨憨萌兽 (可爱提问), B = 温润男声 (沉稳回答)
 
 ### 特殊音色
 
