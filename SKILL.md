@@ -6,28 +6,28 @@ type: skill
 
 # MiniMax TTS 对话生成
 
-使用 MiniMax (`mmx-cli`) 生成多人对话音频，每个角色使用不同音色，支持缓存机制避免重复调用 API。
+使用 MiniMax HTTP T2A v2 API 生成多人对话音频，每个角色使用不同音色，支持缓存、限速重试和速度调整，避免逐句 `mmx-cli` 调用过快触发 rate limit。
 
 ## 核心功能
 
 1. **多角色对话** - A/B 两个角色，各自使用独立音色
-2. **智能缓存** - 同一对话内容只调用一次 API，后续调整速度不消耗配额
-3. **速度调整** - 可分别为 A/B 设置语速 (0.5x - 2.0x)
-4. **字幕生成** - 自动生成 SRT 字幕文件，时间轴与音频匹配
+2. **智能缓存** - 同一对话内容、模型、音色只调用一次 API，后续调整速度不消耗配额
+3. **限速重试** - 默认按免费账户 T2A v2 10 RPM 节奏请求，并自动重试 1002/1039/429 等限流错误
+4. **相邻合并** - 连续相同角色台词会合并为一个 TTS 请求，减少请求数
+5. **速度调整** - 可分别为 A/B 设置语速 (0.5x - 2.0x)
+6. **字幕生成** - 自动生成 SRT 字幕文件，时间轴与音频匹配
 
 ## 前置要求
 
 ```bash
-# 1. 安装 mmx-cli
-npm install -g mmx-cli
-
-# 2. 设置 API Key
+# 1. 设置 API Key
 export MINIMAX_API_KEY="sk-cp-xxx"  # 你的 MiniMax API Key
-mmx auth login --api-key "$MINIMAX_API_KEY"
 
-# 3. 安装 ffmpeg (macOS)
+# 2. 安装 ffmpeg (macOS)
 brew install ffmpeg
 ```
+
+> `mmx-cli` 不再是生成音频的必需依赖；脚本会直接请求 `https://api.minimaxi.com/v1/t2a_v2`。`--list-voices` 会输出官方系统音色列表和查询音色 API 文档入口。
 
 ## 快速开始
 
@@ -50,6 +50,9 @@ python tts_dialogue.py --input dialogue.txt
 
 # 调整速度 (复用缓存，不消耗 API)
 python tts_dialogue.py --input dialogue.txt -sa 1.2 -sb 0.9
+
+# 如果是充值账户，可提高请求频率，例如 20 RPM 约等于 3.2 秒一次
+python tts_dialogue.py --input dialogue.txt --request-interval 3.2
 ```
 
 ### 3. 输出文件
@@ -68,8 +71,34 @@ python tts_dialogue.py --input dialogue.txt -sa 1.2 -sb 0.9
 | `--voice-b`, `-vb` | B 角色音色 ID | `Chinese (Mandarin)_Gentleman` (温润男声) |
 | `--model`, `-m` | TTS 模型 | `speech-2.8-hd` |
 | `--output`, `-o` | 输出文件名 (不含扩展名) | `dialogue_output` |
+| `--api-base` | API 地址，可切换北京备用地址 | `https://api.minimaxi.com` |
+| `--request-interval` | 两次 API 请求的最小间隔秒数 | `6.5` |
+| `--max-retries` | 限流/临时错误最大重试次数 | `6` |
+| `--no-combine-adjacent` | 不合并连续相同角色台词 | `False` |
 | `--force`, `-f` | 强制重新生成，忽略缓存 | `False` |
 | `--list-voices` | 列出所有可用音色 | - |
+
+## 更高效/更不容易限流的方式
+
+MiniMax 官方 T2A v2 是单次请求单个 `voice_setting` 的接口；多角色对话仍需要按角色分段合成。但脚本现在做了几件事来减少限流：
+
+1. **直连 HTTP**：绕过 `mmx-cli` 每句启动一次的额外开销，直接使用 `POST /v1/t2a_v2`。
+2. **默认限速**：`--request-interval 6.5` 对齐免费账户语音 T2A v2 约 10 RPM；充值账户可调为 `3.2` 左右对齐约 20 RPM。
+3. **自动重试**：遇到 HTTP `429`、MiniMax `1002`（限流）或 `1039`（TPM 限流）会指数退避重试。
+4. **相邻合并**：如果输入里出现连续 A 或连续 B，默认合并成一个请求，用换行保留段落；字幕按字数比例拆回原台词。
+5. **缓存更准确**：缓存 hash 已包含文本、模型和 A/B 音色；仅调整 `-sa/-sb` 不会重新调用 API。
+
+如果仍频繁限流，优先调大间隔：
+
+```bash
+python scripts/tts_dialogue.py -i dialogue.txt --request-interval 8
+```
+
+备用接口地址：
+
+```bash
+python scripts/tts_dialogue.py -i dialogue.txt --api-base https://api-bj.minimaxi.com
+```
 
 ## 音色推荐
 
@@ -122,8 +151,8 @@ python tts_dialogue.py --list-voices
 ```
 
 **工作原理：**
-1. 首次运行根据对话内容计算 hash，调用 API 生成原始音频保存在 `raw/`
-2. 后续运行时，如果对话内容没变（hash 相同），直接复用 `raw/` 中的音频
+1. 首次运行根据对话内容、模型、音色计算 hash，调用 API 生成原始音频保存在 `raw/`
+2. 后续运行时，如果对话内容、模型、音色没变（hash 相同），直接复用 `raw/` 中的音频
 3. 速度调整通过 ffmpeg 实现，结果保存在 `adjusted/`
 4. 相同速度的调整结果会被缓存
 
